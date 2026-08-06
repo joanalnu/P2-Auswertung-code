@@ -40,7 +40,7 @@ output = odr.run()
 
 steigung, yachsenabschnitt = output.beta
 
-print(f"Steigung = {steigung:.3f}")
+print(f"Steigung = {steigung:.5f}")
 print(f"y-Achsenabscnitt = {yachsenabschnitt:.3f}")
 print(f"1/steigung = {1/steigung:.3f} (abs Temp)")
 
