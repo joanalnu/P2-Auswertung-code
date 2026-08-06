@@ -44,10 +44,6 @@ print(f"Steigung = {steigung:.3f}")
 print(f"y-Achsenabscnitt = {yachsenabschnitt:.3f}")
 print(f"1/steigung = {1/steigung:.3f} (abs Temp)")
 
-print("------- Unsicherheiten -------")
-print(f"∆Steigung = {output.sd_beta[0]}")
-print(f"∆Temp = {1/(steigung+output.sd_beta[0])+(1/steigung):.3f}")
-
 # berechne die werte fuer das plot
 xgerade = np.linspace(min(xdata), max(xdata))
 ygerade = lineare_relation((steigung, yachsenabschnitt), xgerade)
