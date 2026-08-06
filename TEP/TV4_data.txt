@@ -1,4 +1,4 @@
-Temperatur (ºC),relatives Volumen
+Temperatur $T$ [°C],relatives Volumen $V/V_0$
 Celcius,-
 0.4, 1.0
 14.7, 1.05
