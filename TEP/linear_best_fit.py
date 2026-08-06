@@ -4,13 +4,13 @@ import pandas as pd
 from scipy.odr import ODR, Model, Data
 
 # parameter
-TV = 4
+TV = 1
 
 titles = [
-        "", # TV1
-        "", # TV2
+        r"TV1: Isotherme Volumenexpansion ($T_0 = 88,3 \pm 0,05 °C$)", # TV1
+        "TV2: Isochore Zustandsänderung", # TV2
         "", # TV3
-        "", # TV4
+        "TV4: Isobare Zustandsänderung", # TV4
         "", # TV5
         ]
 
@@ -55,5 +55,6 @@ ax.plot(xgerade, ygerade, label=f"")
 ax.set_xlabel(xlabel)
 ax.set_ylabel(ylabel)
 ax.set_title(titles[TV-1])
+ax.grid(True)
 fig.savefig(f"TV{TV}_plot.pdf", dpi=300)
 fig.savefig(f"last_fig.png", dpi=300)
