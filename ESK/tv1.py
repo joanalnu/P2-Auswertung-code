@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 
 # Laden der Daten
-I_galv_mA = np.array([39.2, 29.1, 21.6, 20.4, 18.0, 16.0, 14.6, 13.3, 12.3, 11.0, 10.8])
-U_galv_V  = np.array([1.108, 1.234, 1.162, 1.264, 1.288, 1.310, 1.325, 1.338, 1.349, 1.361, 1.366])
+I_galv_mA = np.array([39.2, 29.1, 20.4, 18.0, 16.0, 14.6, 13.3, 12.3, 11.0, 10.8])
+U_galv_V  = np.array([1.108, 1.234, 1.264, 1.288, 1.310, 1.325, 1.338, 1.349, 1.361, 1.366])
 
 U_0_vorher = 1.181  # V am Anfang
 U_0_nachher = 1.479 # V am Ende
@@ -31,6 +31,7 @@ U_fit = steigung * I_fit + intercept
 fig, ax = plt.subplots(figsize=(8, 6))
 
 ax.scatter(I_galv_mA, U_galv_V, color='#1f77b4', s=40, label='Messpunkte Belastung', zorder=3)
+ax.scatter(21.6, 1.162, color='red', s=40, label='Messpunkte Belastung', zorder=3)
 ax.plot(I_fit, U_fit, color='#d62728', linestyle='--', linewidth=1.8, 
          label=f'Ausgleichsgerade ($R_i = {R_i:.2f}\\,\\Omega$, $U_q = {U_q:.3f}\\,\\mathrm{{V}}$)')
 
@@ -73,6 +74,6 @@ ax.grid(True, linestyle=':', alpha=0.7)
 ax.legend(loc='lower left', frameon=True)
 plt.tight_layout()
 plt.savefig('tv1_netzgeraet.pdf', dpi=300)
-plt.savefig('last_fig.png', dpi=300)
+#plt.savefig('last_fig.png', dpi=300)
 plt.close()
 
