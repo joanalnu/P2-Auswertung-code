@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from scipy.odr import ODR, Model, Data
 
 # parameter
@@ -19,7 +18,7 @@ def lineare_relation(P, x):
     return P[0] * x + P[1]
 model = Model(lineare_relation)
 
-# importieren der Daten aus der CSV Dateien
+# importieren der Daten aus der Dateien
 
 with open(f"TV{TV}_data.txt", "r") as f:
     content = f.readlines()
