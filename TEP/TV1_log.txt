@@ -1,3 +1,0 @@
-Steigung = 0.12911
-y-Achsenabscnitt = 0.064
-1/steigung = 7.746 (abs Temp)
