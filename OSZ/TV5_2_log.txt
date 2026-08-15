@@ -1,2 +1,6 @@
 Steigung = -0.00243
 y-Achsenabscnitt = 7.330
+Steigung = -0.00140\pm 0.00008
+y-Achsenabscnitt = 2.005
+Steigung = -0.00243\pm 0.00007
+y-Achsenabscnitt = 7.330

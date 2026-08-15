@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.odr import ODR, Model, RealData
 
-r = 1 # messreihe
+r = 1
+# messreihe
 
 # lesen der daten
 with open(f"TV5_data_{r}.txt", 'r') as f:
@@ -34,23 +35,26 @@ data = RealData(xdata, ydata_log, sx=xerr, sy=yerr_log)
 odr = ODR(data, model, beta0=[1,0])
 output = odr.run()
 steigung, yachsenabschnitt = output.beta
+delta_steigung = output.sd_beta[0]
 
-print(f"Steigung = {steigung:.5f}")
+print(fr"Steigung = {steigung:.5f}\pm {delta_steigung:.5f}")
 print(f"y-Achsenabscnitt = {yachsenabschnitt:.3f}")
 
 # berechne die werte fuer das plot
 xgerade = np.linspace(min(xdata), max(xdata), 100)
 ygerade = linear_relation((steigung, yachsenabschnitt), xgerade)
 
-
 # erstelle abbildung
 
 fig, ax = plt.subplots(figsize=(8,6))
 
-ax.errorbar(xdata, ydata_log, xerr=xerr, yerr=yerr_log, fmt='o', label=f"Messdaten Reihe {r}", markersize=4)
-ax.plot(xgerade, ygerade, color='r', label="Lineare Regression")
+ax.errorbar(xdata, ydata_log, xerr=xerr, yerr=yerr_log, fmt='o', markersize=4, label=fr"m = {steigung:.5f}±{delta_steigung:.5f} (Reihe {r})")
+ax.plot(xgerade, ygerade, color='r')
 
-plt.title("")
+ax.fill_between(xgerade, linear_relation((steigung-delta_steigung, yachsenabschnitt), xgerade), linear_relation((steigung+delta_steigung, yachsenabschnitt), xgerade), color='r', alpha=0.3)
+
+plt.legend()
+plt.title("Linearisierte Entladekurve eines Kondensators")
 ax.set_xlabel(xlabel)
 ax.set_ylabel(ylabel)
 ax.grid(True)
