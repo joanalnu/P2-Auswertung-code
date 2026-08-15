@@ -1,0 +1,2 @@
+Steigung = -0.00243
+y-Achsenabscnitt = 7.330
