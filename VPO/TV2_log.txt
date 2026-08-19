@@ -1,0 +1,3 @@
+Theoretische Grenzfrequenz: (1591.55 ± 22.51) Hz
+Hochpass Experimentell Grenzfrequenz: (1615.23 ± 19.26) Hz
+Tiefpass Experimentell Grequenzfrequenz: (1399.06 ± 27.93) Hz

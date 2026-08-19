@@ -2,103 +2,93 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
-# 1. Theoretical Values
+# Parameter der Komponente
 R = 10e3   # 10 kOhm
 C = 10e-9  # 10 nF
-f_g_theory = 1 / (2 * np.pi * R * C)
+fg_theorie = 1 / (2 * np.pi * R * C) # theoretische Grenzfrequenz $f_z$
+# gausssche fehlerfortpflanzung; beide sind pm 1%
+fg_theorie_error = fg_theorie * np.sqrt(0.01**2 + 0.01**2)
 
-# Transfer Ratio Model Functions
-def g_lowpass(f, fg):
-    return 1 / np.sqrt(1 + (f / fg)**2)
+def g_tiefpass(f, fg):
+    return 1/ np.sqrt(1 + (f/fg)**2)
 
-def g_highpass(f, fg):
-    return (f / fg) / np.sqrt(1 + (f / fg)**2)
+def g_hochpass(f, fg):
+    return (f/fg) / np.sqrt(1 + (f/fg)**2)
 
-# 2. Data Loading Function (Line by Line -> Numpy Array)
-def load_data(filepath):
-    parsed_data = []
-    with open(filepath, 'r', encoding='utf-8') as file:
+# lesen der Daten
+def load_data(path):
+    data = []
+    with open(path, 'r') as file:
         lines = file.readlines()
-        
-        # Skip the first two header lines ([source: 1], [source: 2])
         for line in lines[2:]:
-            # Ignore completely empty lines
-            if not line.strip():
-                continue
-            
-            # Strip whitespaces, split by comma, and convert to floats
             row = [float(val) for val in line.strip().split(',')]
-            parsed_data.append(row)
-    
-    # Convert list of lists to a numpy array
-    data_array = np.array(parsed_data)
-    
-    # Optional: Sort the array by the first column (Frequency) just to be safe
-    data_array = data_array[data_array[:, 0].argsort()]
-    
-    return data_array
+            data.append(row)
 
-# Load the data directly from your files
+    return np.array(data) # convert to array
+
 hp_data = load_data("TV2_hochpass_data.txt")
-lp_data = load_data("TV2_tiefpass_data.txt")
+tp_data = load_data("TV2_tiefpass_data.txt")
 
-# 3. Calculate Transfer Ratio |G| and Uncertainty
-def calculate_g_and_dg(data):
-    # Slice the numpy array by columns
-    f = data[:, 0]
-    U1 = data[:, 1]
+
+# Berechnung des Übertragungsverhältnis |G| (Betrag)
+def calculate_g(data):
+    f = data[:, 0] # frequenz
+    U1 = data[:, 1] # Spannung Kanal 1
     dU1 = data[:, 2]
-    U2 = data[:, 3]
+    U2 = data[:, 3] # Spannung Kanal 2
     dU2 = data[:, 4]
     
-    # Calculate G and its error using Gaussian error propagation
-    G = U2 / U1
-    dG = G * np.sqrt((dU2 / U2)**2 + (dU1 / U1)**2)
-    
+    G = U2/U1
+    dG = G * np.sqrt((dU2/U2)**2 + (dU1/U1)**2)
+
     return f, G, dG
 
-f_hp, G_hp, dG_hp = calculate_g_and_dg(hp_data)
-f_lp, G_lp, dG_lp = calculate_g_and_dg(lp_data)
+f_hp, G_hp, dG_hp = calculate_g(hp_data)
+f_tp, G_tp, dG_tp = calculate_g(tp_data)
 
-# 4. Fit Curves to Determine Experimental Cutoff Frequencies
-popt_hp, _ = curve_fit(g_highpass, f_hp, G_hp, p0=[f_g_theory])
-popt_lp, _ = curve_fit(g_lowpass, f_lp, G_lp, p0=[f_g_theory])
 
-fg_hp_exp = popt_hp[0]
-fg_lp_exp = popt_lp[0]
+# berechnung der optimale Kurven
+popt_hp, pcov_hp = curve_fit(g_hochpass, f_hp, G_hp, p0=[fg_theorie])
+popt_tp, pcov_tp = curve_fit(g_tiefpass, f_tp, G_tp, p0=[fg_theorie])
 
-# 5. Plotting
-fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+fg_hp = popt_hp[0]
+fg_tp = popt_tp[0]
 
-# Generate a dense array of frequencies for a smooth fit curve
-f_dense = np.linspace(50, 5500, 500)
-freq_error = 0.05  # 0.5 Hz frequency error as stated in your task
+fg_hp_error = np.sqrt(np.diag(pcov_hp))[0]
+fg_tp_error = np.sqrt(np.diag(pcov_tp))[0]
 
-# High Pass Plot
-axes[0].errorbar(f_hp, G_hp, xerr=freq_error, yerr=dG_hp, fmt='o', color='blue', label='Messdaten')
-axes[0].plot(f_dense, g_highpass(f_dense, fg_hp_exp), 'r-', label=f'Fit Curve ($f_g$ = {fg_hp_exp:.1f} Hz)')
-axes[0].axvline(f_g_theory, color='grey', linestyle='--', label=f'Theorie $f_g$ ({f_g_theory:.1f} Hz)')
+# erstellung der abbildung
+fig, axes = plt.subplots(1, 2, sharey=True, figsize=(12,5))
+
+# x-achse fur die optimale gerade
+f_fit = np.linspace(50, 5500, 500)
+freq_error = 0.5  # Hz
+
+# Tiefpass (links)
+axes[0].errorbar(f_tp, G_tp, xerr=freq_error, yerr=dG_tp, fmt='o', color='blue', label='Messdaten')
+axes[0].plot(f_fit, g_tiefpass(f_fit, fg_tp), 'r-', label=f'optimale Kurve ($f_g$ = {fg_tp:.1f} Hz)')
+axes[0].axvline(fg_theorie, color='grey', linestyle='--', label=f'Theorie $f_g$ ({fg_theorie:.1f} Hz)')
 axes[0].axhline(1 / np.sqrt(2), color='green', linestyle=':', label=r'|G| = $1/\sqrt{2}$')
-axes[0].set_title('Hochpass')
+axes[0].set_title('Tiefpass')
 axes[0].set_xlabel('Frequenz $f$ [Hz]')
-axes[0].set_ylabel('$|G| = U_2 / U_1$')
 axes[0].grid(True)
 axes[0].legend()
 
-# Low Pass Plot
-axes[1].errorbar(f_lp, G_lp, xerr=freq_error, yerr=dG_lp, fmt='o', color='blue', label='Messdaten')
-axes[1].plot(f_dense, g_lowpass(f_dense, fg_lp_exp), 'r-', label=f'Fit Curve ($f_g$ = {fg_lp_exp:.1f} Hz)')
-axes[1].axvline(f_g_theory, color='grey', linestyle='--', label=f'Theorie $f_g$ ({f_g_theory:.1f} Hz)')
+# Hochpass (rechts)
+axes[1].errorbar(f_hp, G_hp, xerr=freq_error, yerr=dG_hp, fmt='o', color='blue', label='Messdaten')
+axes[1].plot(f_fit, g_hochpass(f_fit, fg_hp), 'r-', label=f'Fit Curve ($f_g$ = {fg_hp:.1f} Hz)')
+axes[1].axvline(fg_theorie, color='grey', linestyle='--', label=f'Theorie $f_g$ ({fg_theorie:.1f} Hz)')
 axes[1].axhline(1 / np.sqrt(2), color='green', linestyle=':', label=r'|G| = $1/\sqrt{2}$')
-axes[1].set_title('Tiefpass')
+axes[1].set_title('Hochpass')
 axes[1].set_xlabel('Frequenz $f$ [Hz]')
+axes[1].set_ylabel('$|G| = U_2 / U_1$')
 axes[1].grid(True)
 axes[1].legend()
 
-plt.tight_layout()
-plt.show()
+fig.savefig("TV2_plot.pdf", dpi=300)
+fig.savefig("preview.png", dpi=300)
 
 # Print Comparison Output
-print(f"Theoretische Grenzfrequenz: {f_g_theory:.2f} Hz")
-print(f"Hochpass Experimentell Grenzfrequenz: {fg_hp_exp:.2f} Hz")
-print(f"Tiefpass Experimentell Grequenzfrequenz: {fg_lp_exp:.2f} Hz")
+print(f"Theoretische Grenzfrequenz: ({fg_theorie:.2f} ± {fg_theorie_error:.2f}) Hz")
+print(f"Hochpass Experimentell Grenzfrequenz: ({fg_hp:.2f} ± {fg_hp_error:.2f}) Hz")
+print(f"Tiefpass Experimentell Grequenzfrequenz: ({fg_tp:.2f} ± {fg_tp_error:.2f}) Hz")
