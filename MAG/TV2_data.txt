@@ -1,0 +1,12 @@
+alpha $\alpha$ [Gradmaß], beta $\beta$ [Gradmaß]
+grad,grad(absolute wert, weil durch np.unwrap funktion)
+ 0,  294.0
+10,  321.0
+20,  354.0
+30,  21.5
+40,  48.0
+50,  68.0
+60,  89.0
+70, 104.0
+80, 116.0
+90, 129.0
