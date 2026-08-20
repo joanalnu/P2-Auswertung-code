@@ -1,0 +1,2 @@
+Theoretische Resonanzfrequenz = (4672.95 ± 33.04) Hz
+Experimentelle Resonanzfrequenz = (4325.56 ± 14.79) Hz
